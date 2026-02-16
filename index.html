@@ -1048,7 +1048,6 @@
       hideLoaderSafe();
     }
   }
-  }
   async function logout(){
     showLoader('Logout…','Menutup session…');
     try{
@@ -1089,22 +1088,6 @@
       hideLoaderSafe();
     }
   }
-    showLoader('Memulihkan session…','Cek token…');
-    try{
-      const me = await callServer('apiMe', tok);
-      if (!me.ok) throw new Error('Session kedaluwarsa');
-      state.token = tok;
-      state.userId = me.userId;
-      state.fullName = me.fullName || me.userId;
-
-      await bootstrapApp();
-    } catch(e){
-      showLogin();
-    } finally {
-      hideLoaderSafe();
-    }
-  }
-
   function showLogin(){
     document.getElementById('loginView').style.display = 'flex';
     document.getElementById('appView').style.display = 'none';
