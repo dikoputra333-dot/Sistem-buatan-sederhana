@@ -1,0 +1,1788 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistem Tabungan</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f0f14;
+      --muted:#6b7280;         /* abu */
+      --line:#e5e7eb;          /* abu muda */
+      --accent:#9ca3af;        /* abu accent */
+      --purple:#6d28d9;        /* ungu sekunder */
+      --purple2:#7c3aed;
+      --card:#ffffff;
+      --shadow: 0 12px 35px rgba(17, 24, 39, .10);
+      --radius:16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    a{ color: var(--purple); text-decoration:none; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:22px; }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px; border:1px solid var(--line); border-radius: var(--radius);
+      background: var(--card); box-shadow: var(--shadow);
+      position: sticky; top: 12px; z-index: 5;
+    }
+    .brand{ display:flex; gap:10px; align-items:center; }
+    .logoDot{
+      width:14px; height:14px; border-radius:50%;
+      background: var(--purple);
+      box-shadow: 0 0 0 4px rgba(109,40,217,.15);
+    }
+    .brandTitle{ font-weight:800; letter-spacing:.2px; }
+    .pill{
+      border:1px solid var(--line);
+      color: var(--muted);
+      padding:8px 10px; border-radius:999px;
+      font-size:12px;
+      display:flex; gap:8px; align-items:center;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: #fff;
+      padding:10px 12px; border-radius:12px;
+      cursor:pointer;
+      font-weight:650;
+      transition: transform .08s ease, box-shadow .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(17, 24, 39, .08); }
+    .btn.primary{
+      background: var(--purple);
+      border-color: var(--purple);
+      color:#fff;
+    }
+    .btn.danger{
+      background:#fff;
+      border-color:#fecaca;
+      color:#b91c1c;
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:18px;
+      margin-top:18px;
+    }
+    @media (max-width: 940px){
+      .grid{ grid-template-columns: 1fr; }
+      .topbar{ position: static; }
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding:16px;
+    }
+    .card h2{ margin:0 0 8px; font-size:16px; }
+    .muted{ color: var(--muted); font-size:13px; line-height:1.4; }
+    .tabs{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:14px;
+    }
+    .tab{
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight:650;
+      color: var(--muted);
+      background:#fff;
+    }
+    .tab.active{
+      border-color: rgba(109,40,217,.35);
+      color: var(--purple);
+      background: rgba(109,40,217,.07);
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width: 640px){
+      .kpis{ grid-template-columns: 1fr; }
+    }
+    .kpi{
+      border:1px dashed rgba(109,40,217,.25);
+      border-radius: 14px;
+      padding:12px;
+      background: rgba(109,40,217,.04);
+    }
+    .kpi .label{ color: var(--muted); font-size:12px; }
+    .kpi .value{ font-size:18px; font-weight:800; margin-top:6px; }
+
+    table{ width:100%; border-collapse: collapse; }
+    th, td{
+      border-bottom:1px solid var(--line);
+      padding:10px 8px;
+      text-align:left;
+      font-size:13px;
+      vertical-align: top;
+    }
+    th{ color: var(--muted); font-weight:800; font-size:12px; letter-spacing:.3px; }
+    tr:hover td{ background: rgba(156,163,175,.08); }
+    .rowActions{ display:flex; gap:8px; }
+    .tag{
+      display:inline-flex;
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size:12px;
+      font-weight:750;
+      border:1px solid var(--line);
+      color: var(--muted);
+      background:#fff;
+    }
+    .tag.purple{
+      border-color: rgba(109,40,217,.35);
+      color: var(--purple);
+      background: rgba(109,40,217,.07);
+    }
+
+    .formGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width: 640px){
+      .formGrid{ grid-template-columns: 1fr; }
+    }
+    label{ display:block; font-size:12px; color: var(--muted); font-weight:800; margin-bottom:6px; }
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius: 12px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+      color: var(--text);
+    }
+    textarea{ min-height: 90px; resize: vertical; }
+
+    .footerActions{
+      display:flex; gap:10px; justify-content:flex-end; margin-top:12px;
+    }
+
+    /* Modal */
+    .modalMask{
+      position:fixed; inset:0;
+      background: rgba(15,15,20,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index: 50;
+    }
+    .modal{
+      width: min(680px, 100%);
+      border-radius: 18px;
+      background:#fff;
+      border:1px solid var(--line);
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+      padding:16px;
+    }
+    .modalHead{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px;
+    }
+    .modalHead h3{ margin:0; font-size:16px; }
+    .x{ border:none; background:transparent; cursor:pointer; font-size:22px; line-height:1; color: var(--muted); }
+
+    /* Login */
+    .center{
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 22px;
+    }
+    .loginCard{
+      width:min(460px, 100%);
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background:#fff;
+      box-shadow: var(--shadow);
+      padding:18px;
+    }
+    .loginTitle{ font-size:18px; font-weight:900; margin:0 0 6px; }
+    .loginSub{ margin:0; color: var(--muted); font-size:13px; line-height:1.4; }
+    .loginActions{ display:flex; gap:10px; margin-top:12px; justify-content:flex-end; }
+
+    /* Loader overlay + Mascot (Kuromi-style, generic, non-copyrighted) */
+    .loaderMask{
+      position: fixed; inset: 0;
+      display:none;
+      align-items: center; justify-content:center;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+    }
+    .loaderCard{
+      width: 320px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      text-align:center;
+    }
+    .loaderText{ font-weight:800; margin-top: 10px; }
+    .loaderSub{ font-size:12px; color: var(--muted); margin-top: 4px; }
+
+    /* Cute mischievous mascot */
+    .mascot{
+      width: 120px; height: 120px;
+      margin: 0 auto;
+      position: relative;
+      animation: floaty 1.5s ease-in-out infinite;
+    }
+    @keyframes floaty {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-7px); }
+    }
+    .head{
+      position:absolute; inset: 20px 18px 18px 18px;
+      border-radius: 24px;
+      background: #111827;
+      box-shadow: 0 14px 30px rgba(17,24,39,.18);
+    }
+    .ear{
+      position:absolute; top: 0;
+      width: 28px; height: 48px;
+      background:#111827;
+      border-radius: 20px 20px 12px 12px;
+      transform-origin: bottom center;
+    }
+    .ear.left{ left: 18px; transform: rotate(-12deg); animation: earWiggle 1.2s ease-in-out infinite; }
+    .ear.right{ right: 18px; transform: rotate(12deg); animation: earWiggle 1.2s ease-in-out infinite reverse; }
+    @keyframes earWiggle{
+      0%,100%{ transform: rotate(var(--rot)); }
+      50%{ transform: rotate(calc(var(--rot) * -1)); }
+    }
+    .ear.left{ --rot:-12deg; }
+    .ear.right{ --rot:12deg; }
+
+    .face{
+      position:absolute; left: 24px; right: 24px; top: 40px; bottom: 24px;
+      border-radius: 18px;
+      background: #fff;
+    }
+    .eye{
+      position:absolute; top: 22px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background:#111827;
+    }
+    .eye.left{ left: 18px; }
+    .eye.right{ right: 18px; }
+    .mouth{
+      position:absolute; left: 50%; top: 46px;
+      width: 18px; height: 10px;
+      border: 3px solid #111827;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      transform: translateX(-50%);
+      border-radius: 0 0 20px 20px;
+    }
+    .moodAngry .mouth{
+      border-radius: 20px 20px 0 0;
+      border-bottom: none;
+      border-top: 3px solid #111827;
+      top: 48px;
+    }
+    .blush{
+      position:absolute; top: 34px;
+      width: 14px; height: 8px; border-radius: 999px;
+      background: rgba(124,58,237,.25);
+      filter: blur(.1px);
+    }
+    .blush.left{ left: 8px; }
+    .blush.right{ right: 8px; }
+    .horn{
+      position:absolute; top: 12px; left: 50%;
+      width: 14px; height: 14px;
+      border-radius: 4px;
+      background: var(--purple);
+      transform: translateX(-50%) rotate(15deg);
+      box-shadow: 0 0 0 4px rgba(109,40,217,.14);
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      padding: 10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background:#fff;
+      box-shadow: var(--shadow);
+      display:none;
+      z-index: 200;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .toast.bad{ border-color:#fecaca; color:#b91c1c; }
+    .toast.good{ border-color:rgba(109,40,217,.35); color: var(--purple); }
+  </style>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js"></script>
+
+</head>
+
+<body>
+  <!-- Loader -->
+  <div class="loaderMask" id="loaderMask">
+    <div class="loaderCard">
+      <div class="mascot" id="mascot">
+        <div class="ear left"></div>
+        <div class="ear right"></div>
+        <div class="head">
+          <div class="horn"></div>
+          <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="blush left"></div>
+            <div class="blush right"></div>
+            <div class="mouth"></div>
+          </div>
+        </div>
+      </div>
+      <div class="loaderText" id="loaderText">Memuat…</div>
+      <div class="loaderSub" id="loaderSub">Mascot mode: imut dulu, marah belakangan.</div>
+      <!-- Slot bila kamu ingin pakai GIF Kuromi milikmu sendiri:
+           <img src="PASTE_URL_GIF_KUROMI_MILIKMU" style="width:120px;height:120px;border-radius:16px;" />
+      -->
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- LOGIN VIEW -->
+  <div class="center" id="loginView" style="display:none;">
+    <div class="loginCard">
+      <div class="brand" style="margin-bottom:10px;">
+        <div class="logoDot"></div>
+        <div>
+          <div class="brandTitle">Tabungan Kita Berdua</div>
+          <div class="muted">Nabung • Pemakaian • Goals Kita</div>
+        </div>
+      </div>
+      <h1 class="loginTitle">Login</h1>
+      <p class="loginSub">Masuk dengan <b>ID</b> dan <b>Password</b></p>
+
+      <div class="formGrid" style="margin-top:14px;">
+        <div>
+          <label>User ID</label>
+          <input id="loginUserId" placeholder="contoh: admin" />
+        </div>
+        <div>
+          <label>Password</label>
+          <input id="loginPassword" type="password" placeholder="contoh: admin123" />
+        </div>
+      </div>
+      <div class="loginActions">
+        <button class="btn primary" onclick="handleLogin()">Login</button>
+      </div>
+      <div class="muted" style="margin-top:10px;">
+        Tidak ada Registrasi akun: <span class="tag purple">Khusus kita berdua</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP VIEW -->
+  <div class="wrap" id="appView" style="display:none;">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logoDot"></div>
+        <div>
+          <div class="brandTitle">Tabungan Kita Berdua</div>
+          <div class="muted" id="welcomeText">—</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div class="pill">
+          <span>Session</span>
+          <span class="tag purple" id="sessionUser">—</span>
+        </div>
+        <button class="btn" onclick="refreshAll()">Sync</button>
+        <button class="btn danger" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</div>
+      <div class="tab" data-tab="inflow" onclick="switchTab('inflow')">Cash Inflow</div>
+      <div class="tab" data-tab="outbound" onclick="switchTab('outbound')">Cash Outbound</div>
+      <div class="tab" data-tab="goals" onclick="switchTab('goals')">Forecasting Goals</div>
+      <div class="tab" data-tab="charts" onclick="switchTab('charts')">Charts/Diagram</div>
+    </div>
+
+    <div class="grid">
+      <div class="card" id="mainCard">
+        <!-- Dynamic content -->
+      </div>
+
+      <div class="card">
+        <h2>Quick Add</h2>
+        <div class="muted">Tambah transaksi cepat (akan masuk sesuai tab aktif).</div>
+
+        <div class="formGrid">
+          <div>
+            <label>Tanggal</label>
+            <input id="qaDate" type="date" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="qaAmount" type="number" min="0" step="1" placeholder="contoh: 25000" />
+          </div>
+          <div>
+            <label>Kategori</label>
+            <input id="qaCategory" placeholder="contoh: Gaji / Makan / Transport" />
+          </div>
+          <div>
+            <label>Catatan</label>
+            <input id="qaNote" placeholder="opsional" />
+          </div>
+        </div>
+
+        <div class="footerActions">
+          <button class="btn primary" onclick="quickAdd()">Tambah</button>
+        </div>
+
+        <div style="margin-top:14px;">
+          <h2 style="margin-bottom:6px;">Mascot Mood</h2>
+          <div class="muted">Loader imut atau marah</div>
+          <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn" onclick="setMascotMood('cute')">Imut</button>
+            <button class="btn" onclick="setMascotMood('angry')">Marah</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modalMask" id="modalMask">
+    <div class="modal">
+      <div class="modalHead">
+        <h3 id="modalTitle">—</h3>
+        <button class="x" onclick="closeModal()">×</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+
+  // =========================
+  // State
+  // =========================
+  const state = {
+    token: null,
+    userId: null,
+    fullName: null,
+    activeTab: 'dashboard',
+    inflow: [],
+    outbound: [],
+    goals: [],
+    summary: { totalIn:0, totalOut:0, balance:0, avgMonthlyNet:0 },
+    mascotMood: 'cute',
+    syncVersion: 0,
+    pollTimer: null,
+    chartsReady: false
+  };
+
+  // =========================
+  // Supabase init
+  // =========================
+  const CFG = window.APP_CONFIG || {};
+  const SUPABASE_URL = CFG.SUPABASE_URL;
+  const SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY;
+  const ID_EMAIL_SUFFIX = CFG.ID_EMAIL_SUFFIX || '@tabungan.local';
+  const AVG_MONTHS_FOR_FORECAST = Number(CFG.AVG_MONTHS_FOR_FORECAST || 3);
+
+  const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
+
+  function idToEmail_(userId){
+    const id = String(userId || '').trim();
+    if (!id) return '';
+    return id.includes('@') ? id : (id + ID_EMAIL_SUFFIX);
+  }
+  function emailToId_(email){
+    const e = String(email || '').trim();
+    if (!e) return '';
+    return e.endsWith(ID_EMAIL_SUFFIX) ? e.slice(0, -ID_EMAIL_SUFFIX.length) : e;
+  }
+
+  async function requireSession_(){
+    const { data, error } = await supa.auth.getSession();
+    if (error) throw error;
+    if (!data || !data.session) throw new Error('Unauthorized');
+    return data.session;
+  }
+
+  async function getFullName_(userIdForDisplay){
+    const session = await requireSession_();
+    const uid = session.user.id;
+
+    const { data, error } = await supa
+      .from('profiles')
+      .select('full_name')
+      .eq('id', uid)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (data && data.full_name) return data.full_name;
+
+    // kalau belum ada profile, buatkan sekali
+    const { error: upErr } = await supa
+      .from('profiles')
+      .upsert({ id: uid, full_name: userIdForDisplay }, { onConflict: 'id' });
+
+    if (upErr) throw upErr;
+    return userIdForDisplay;
+  }
+
+  // =========================
+  // Validasi & kalkulasi (porting dari Code.gs)
+  // =========================
+  function cleanTxLocal_(tx){
+    const date = String(tx.date || '').trim();
+    const amount = Number(tx.amount || 0);
+    const category = String(tx.category || '').trim();
+    const note = String(tx.note || '').trim();
+
+    if (!date) return { ok:false, message:'Tanggal wajib.' };
+    if (!Number.isFinite(amount) || amount <= 0) return { ok:false, message:'Amount harus > 0.' };
+
+    return { ok:true, date, amount, category, note };
+  }
+
+  function cleanGoalLocal_(goal){
+    const goalName = String(goal.goalName || '').trim();
+    const goalAmount = Number(goal.goalAmount || 0);
+    const targetDate = String(goal.targetDate || '').trim();
+
+    if (!goalName) return { ok:false, message:'Nama goal wajib.' };
+    if (!Number.isFinite(goalAmount) || goalAmount <= 0) return { ok:false, message:'Target amount harus > 0.' };
+    if (!targetDate) return { ok:false, message:'Target date wajib.' };
+
+    return { ok:true, goalName, goalAmount, targetDate };
+  }
+
+  function computeForecastLocal_(summary, goalAmount, targetDateISO){
+    const currentBalance = Number(summary.balance || 0);
+    const projectedMonthlyNet = Number(summary.avgMonthlyNet || 0);
+
+    const today = new Date();
+    const target = new Date(targetDateISO + 'T00:00:00');
+    const days = Math.floor((target.getTime() - today.getTime()) / (1000*60*60*24));
+    const monthsRemaining = days <= 0 ? 0 : Math.max(1, Math.ceil(days / 30.4375));
+
+    const gap = goalAmount - currentBalance;
+    const requiredMonthlyNet = monthsRemaining <= 0 ? (gap > 0 ? gap : 0) : Math.max(0, gap / monthsRemaining);
+
+    const projectedBalanceAtTarget = currentBalance + projectedMonthlyNet * monthsRemaining;
+
+    let status;
+    if (monthsRemaining <= 0) {
+      status = (currentBalance >= goalAmount) ? '✅ Target tercapai' : '⛔ Target lewat, belum tercapai';
+    } else if (projectedBalanceAtTarget >= goalAmount) {
+      status = '✅ On track (berdasarkan rata-rata net bulanan)';
+    } else {
+      const extra = (goalAmount - projectedBalanceAtTarget) / monthsRemaining;
+      status = `⚠️ Perlu tambah net +${Math.ceil(extra)} / bulan`;
+    }
+
+    return {
+      currentBalance,
+      projectedMonthlyNet,
+      monthsRemaining,
+      requiredMonthlyNet,
+      projectedBalanceAtTarget,
+      status
+    };
+  }
+
+
+  // =========================
+  // Helpers: UI
+  // =========================
+  function money(n){
+    try{
+      return new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(Number(n||0));
+    } catch(e){
+      return 'Rp ' + (Number(n||0).toFixed(0));
+    }
+  }
+  function todayISO(){
+    const d = new Date();
+    const pad = (x)=> String(x).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  }
+  function showLoader(text='Memuat...', sub='Sedang sinkron data…'){
+    const mask = document.getElementById('loaderMask');
+    document.getElementById('loaderText').textContent = text;
+    document.getElementById('loaderSub').textContent = sub;
+    setMascotMood(state.mascotMood, true);
+    mask.style.display = 'flex';
+  }
+  function hideLoader(){
+    document.getElementById('loaderMask').style.display = 'none';
+  }
+  // Loader yang terasa lebih cepat (tidak tampil kalau proses selesai sangat cepat)
+  let loaderTimer = null;
+  function showLoaderDelayed(text='Memuat...', sub='Sedang memproses...', delay=180){
+    clearTimeout(loaderTimer);
+    loaderTimer = setTimeout(()=> showLoader(text, sub), delay);
+  }
+  function hideLoaderSafe(){
+    clearTimeout(loaderTimer);
+    hideLoader();
+  }
+  function toast(msg, kind='good'){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (kind === 'bad' ? 'bad' : 'good');
+    t.style.display = 'block';
+    setTimeout(()=> t.style.display = 'none', 2600);
+  }
+  function setMascotMood(mood, silent=false){
+    state.mascotMood = mood;
+    const m = document.getElementById('mascot');
+    m.classList.remove('moodAngry');
+    if (mood === 'angry') m.classList.add('moodAngry');
+    if (!silent) toast('Mascot mood: ' + (mood === 'angry' ? 'marah 😤' : 'imut 🥺'), 'good');
+  }
+
+  function openModal(title, bodyHTML){
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = bodyHTML;
+    document.getElementById('modalMask').style.display = 'flex';
+  }
+  function closeModal(){
+    document.getElementById('modalMask').style.display = 'none';
+  }
+
+  // =========================
+  // Server call wrapper
+  // =========================
+  // =========================
+  // Supabase "server" wrapper (pengganti google.script.run)
+  // =========================
+  async function callServer(fn, ...args){
+    // Catatan: signature di UI lama masih mengirim "token". Di Supabase, session diurus internal.
+    try{
+      switch(fn){
+
+        case 'apiBootstrap': {
+          const opts = args[1] || {};
+          const inflowLimit   = Number(opts.inflowLimit || 500);
+          const outboundLimit = Number(opts.outboundLimit || 500);
+          const goalsLimit    = Number(opts.goalsLimit || 200);
+
+          const [sum, inflow, outbound, goals, ver] = await Promise.all([
+            callServer('apiGetSummary', null),
+            callServer('apiListTransactions', null, 'inflow',  { limit: inflowLimit }),
+            callServer('apiListTransactions', null, 'outbound',{ limit: outboundLimit }),
+            callServer('apiListGoals', null, { limit: goalsLimit }),
+            callServer('apiGetSyncVersion', null)
+          ]);
+
+          if (!sum.ok) throw new Error(sum.message || 'Gagal summary');
+          if (!inflow.ok) throw new Error(inflow.message || 'Gagal inflow');
+          if (!outbound.ok) throw new Error(outbound.message || 'Gagal outbound');
+          if (!goals.ok) throw new Error(goals.message || 'Gagal goals');
+
+          return {
+            ok:true,
+            data:{
+              version: (ver && ver.ok ? ver.version : Date.now()),
+              summary: sum.data,
+              inflow: inflow.data,
+              outbound: outbound.data,
+              goals: goals.data
+            }
+          };
+        }
+
+        case 'apiGetSummary': {
+          const monthsN = AVG_MONTHS_FOR_FORECAST;
+          const { data, error } = await supa.rpc('get_summary', { months_n: monthsN });
+          if (error) throw error;
+          // Supabase rpc bisa mengembalikan 1 row object
+          return { ok:true, data: {
+            totalIn: Number(data?.total_in || 0),
+            totalOut: Number(data?.total_out || 0),
+            balance: Number(data?.balance || 0),
+            avgMonthlyNet: Number(data?.avg_monthly_net || 0)
+          }};
+        }
+
+        case 'apiGetSyncVersion': {
+          // versi = epoch(ms) dari updated_at paling baru (transactions/goals)
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const [t1, t2] = await Promise.all([
+            supa.from('transactions').select('updated_at').eq('user_id', userId).order('updated_at', { ascending:false }).limit(1),
+            supa.from('goals').select('updated_at').eq('user_id', userId).order('updated_at', { ascending:false }).limit(1)
+          ]);
+
+          const latest1 = (t1.data && t1.data[0] && t1.data[0].updated_at) ? Date.parse(t1.data[0].updated_at) : 0;
+          const latest2 = (t2.data && t2.data[0] && t2.data[0].updated_at) ? Date.parse(t2.data[0].updated_at) : 0;
+
+          const version = Math.max(latest1, latest2, 0);
+          return { ok:true, version };
+        }
+
+        case 'apiListTransactions': {
+          const type = String(args[1] || 'inflow');
+          const opt  = args[2] || {};
+          const limit = Number(opt.limit || 500);
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { data, error } = await supa
+            .from('transactions')
+            .select('id,date,amount,category,note,type,created_at,updated_at')
+            .eq('user_id', userId)
+            .eq('type', type)
+            .order('date', { ascending:false })
+            .order('created_at', { ascending:false })
+            .limit(limit);
+
+          if (error) throw error;
+
+          return { ok:true, data: (data || []).map(x=> ({
+            id: x.id,
+            date: x.date,
+            amount: Number(x.amount||0),
+            category: x.category,
+            note: x.note,
+            type: x.type,
+            createdAt: x.created_at,
+            updatedAt: x.updated_at
+          }))};
+        }
+
+        case 'apiAddTransaction': {
+          const type = String(args[1] || 'inflow');
+          const tx = args[2] || {};
+          const cleaned = cleanTxLocal_(tx);
+          if (!cleaned.ok) return cleaned;
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { data, error } = await supa
+            .from('transactions')
+            .insert([{
+              user_id: userId,
+              type,
+              date: cleaned.date,
+              amount: cleaned.amount,
+              category: cleaned.category,
+              note: cleaned.note
+            }])
+            .select('id,date,amount,category,note,type,created_at,updated_at')
+            .single();
+
+          if (error) throw error;
+
+          return { ok:true, data: {
+            id: data.id,
+            date: data.date,
+            amount: Number(data.amount||0),
+            category: data.category,
+            note: data.note,
+            type: data.type,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          }};
+        }
+
+        case 'apiUpdateTransaction': {
+          const type = String(args[1] || 'inflow');
+          const id = String(args[2] || '');
+          const patch = args[3] || {};
+          if (!id) return { ok:false, message:'id wajib.' };
+
+          const cleaned = cleanTxLocal_(patch);
+          if (!cleaned.ok) return cleaned;
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { data, error } = await supa
+            .from('transactions')
+            .update({
+              date: cleaned.date,
+              amount: cleaned.amount,
+              category: cleaned.category,
+              note: cleaned.note
+            })
+            .eq('user_id', userId)
+            .eq('id', id)
+            .eq('type', type)
+            .select('id,date,amount,category,note,type,created_at,updated_at')
+            .single();
+
+          if (error) throw error;
+
+          return { ok:true, data: {
+            id: data.id,
+            date: data.date,
+            amount: Number(data.amount||0),
+            category: data.category,
+            note: data.note,
+            type: data.type,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          }};
+        }
+
+        case 'apiDeleteTransaction': {
+          const type = String(args[1] || 'inflow');
+          const id = String(args[2] || '');
+          if (!id) return { ok:false, message:'id wajib.' };
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { error } = await supa
+            .from('transactions')
+            .delete()
+            .eq('user_id', userId)
+            .eq('id', id)
+            .eq('type', type);
+
+          if (error) throw error;
+          return { ok:true };
+        }
+
+        case 'apiListGoals': {
+          const opt = args[1] || {};
+          const limit = Number(opt.limit || 200);
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { data, error } = await supa
+            .from('goals')
+            .select('id,goal_name,goal_amount,target_date,created_at,updated_at,last_calc_at,current_balance_at_calc,months_remaining_at_calc,required_monthly_net,projected_monthly_net,projected_balance_at_target,status')
+            .eq('user_id', userId)
+            .order('created_at', { ascending:false })
+            .limit(limit);
+
+          if (error) throw error;
+
+          return { ok:true, data: (data || []).map(g=> ({
+            id: g.id,
+            goalName: g.goal_name,
+            goalAmount: Number(g.goal_amount||0),
+            targetDate: g.target_date,
+            createdAt: g.created_at,
+            updatedAt: g.updated_at,
+            lastCalcAt: g.last_calc_at,
+            currentBalanceAtCalc: Number(g.current_balance_at_calc||0),
+            monthsRemainingAtCalc: Number(g.months_remaining_at_calc||0),
+            requiredMonthlyNet: Number(g.required_monthly_net||0),
+            projectedMonthlyNet: Number(g.projected_monthly_net||0),
+            projectedBalanceAtTarget: Number(g.projected_balance_at_target||0),
+            status: g.status
+          }))};
+        }
+
+        case 'apiAddGoal': {
+          const goal = args[1] || {};
+          const cleaned = cleanGoalLocal_(goal);
+          if (!cleaned.ok) return cleaned;
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const sum = await callServer('apiGetSummary', null);
+          if (!sum.ok) return sum;
+
+          const fc = computeForecastLocal_(sum.data, cleaned.goalAmount, cleaned.targetDate);
+
+          const { data, error } = await supa
+            .from('goals')
+            .insert([{
+              user_id: userId,
+              goal_name: cleaned.goalName,
+              goal_amount: cleaned.goalAmount,
+              target_date: cleaned.targetDate,
+              last_calc_at: new Date().toISOString(),
+              current_balance_at_calc: fc.currentBalance,
+              months_remaining_at_calc: fc.monthsRemaining,
+              required_monthly_net: fc.requiredMonthlyNet,
+              projected_monthly_net: fc.projectedMonthlyNet,
+              projected_balance_at_target: fc.projectedBalanceAtTarget,
+              status: fc.status
+            }])
+            .select('id')
+            .single();
+
+          if (error) throw error;
+
+          return { ok:true, data: {
+            id: data.id,
+            requiredMonthlyNet: fc.requiredMonthlyNet,
+            projectedBalanceAtTarget: fc.projectedBalanceAtTarget,
+            status: fc.status
+          }};
+        }
+
+        case 'apiRecalcGoal': {
+          const id = String(args[1] || '');
+          if (!id) return { ok:false, message:'id wajib.' };
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { data: g, error: gerr } = await supa
+            .from('goals')
+            .select('id,goal_amount,target_date')
+            .eq('user_id', userId)
+            .eq('id', id)
+            .single();
+
+          if (gerr) throw gerr;
+
+          const sum = await callServer('apiGetSummary', null);
+          if (!sum.ok) return sum;
+
+          const fc = computeForecastLocal_(sum.data, Number(g.goal_amount||0), g.target_date);
+
+          const { error } = await supa
+            .from('goals')
+            .update({
+              last_calc_at: new Date().toISOString(),
+              current_balance_at_calc: fc.currentBalance,
+              months_remaining_at_calc: fc.monthsRemaining,
+              required_monthly_net: fc.requiredMonthlyNet,
+              projected_monthly_net: fc.projectedMonthlyNet,
+              projected_balance_at_target: fc.projectedBalanceAtTarget,
+              status: fc.status
+            })
+            .eq('user_id', userId)
+            .eq('id', id);
+
+          if (error) throw error;
+
+          return { ok:true, data: fc };
+        }
+
+        case 'apiDeleteGoal': {
+          const id = String(args[1] || '');
+          if (!id) return { ok:false, message:'id wajib.' };
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          const { error } = await supa
+            .from('goals')
+            .delete()
+            .eq('user_id', userId)
+            .eq('id', id);
+
+          if (error) throw error;
+          return { ok:true };
+        }
+
+        default:
+          throw new Error('Unknown fn: ' + fn);
+      }
+    } catch(err){
+      const msg = (err && (err.message || err.error_description)) ? (err.message || err.error_description) : String(err);
+      return { ok:false, message: msg };
+    }
+  }
+
+  // =========================
+  // Auth flow
+  // =========================
+  async function handleLogin(){
+    const userId = document.getElementById('loginUserId').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!userId || !password) return toast('ID dan password wajib diisi.', 'bad');
+
+    showLoader('Login…', 'Memverifikasi akun…');
+    try{
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error('Supabase belum dikonfigurasi. Isi config.js dulu.');
+
+      const email = idToEmail_(userId);
+      const { data, error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+
+      state.token = data.session?.access_token || 'ok';
+      state.userId = emailToId_(data.user?.email || email);
+      state.fullName = await getFullName_(state.userId);
+
+      await bootstrapApp();
+      toast('Login sukses ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+  }
+  async function logout(){
+    showLoader('Logout…','Menutup session…');
+    try{
+      await supa.auth.signOut();
+    } catch(e){}
+    state.token = null;
+    state.userId = null;
+    state.fullName = null;
+    hideLoaderSafe();
+    showLogin();
+  }
+  async function autoLogin(){
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY){
+      showLogin();
+      toast('Config Supabase belum diisi (config.js).', 'bad');
+      return;
+    }
+
+    showLoader('Memulihkan session…','Cek session…');
+    try{
+      const { data, error } = await supa.auth.getSession();
+      if (error) throw error;
+
+      const session = data?.session;
+      if (!session){
+        showLogin();
+        return;
+      }
+
+      state.token = session.access_token || 'ok';
+      state.userId = emailToId_(session.user?.email || '');
+      state.fullName = await getFullName_(state.userId);
+
+      await bootstrapApp();
+    } catch(e){
+      showLogin();
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+    showLoader('Memulihkan session…','Cek token…');
+    try{
+      const me = await callServer('apiMe', tok);
+      if (!me.ok) throw new Error('Session kedaluwarsa');
+      state.token = tok;
+      state.userId = me.userId;
+      state.fullName = me.fullName || me.userId;
+
+      await bootstrapApp();
+    } catch(e){
+      showLogin();
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  function showLogin(){
+    document.getElementById('loginView').style.display = 'flex';
+    document.getElementById('appView').style.display = 'none';
+    document.getElementById('loginUserId').value = 'admin';
+    document.getElementById('loginPassword').value = 'admin123';
+  }
+  function showApp(){
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('appView').style.display = 'block';
+    document.getElementById('sessionUser').textContent = state.userId || '—';
+    document.getElementById('welcomeText').textContent = `Halo, ${state.fullName || state.userId}.`;
+  }
+
+  // =========================
+  // Data Load
+  // =========================
+  async function bootstrapApp(){
+    showApp();
+    document.getElementById('qaDate').value = todayISO();
+    await refreshAll();
+    switchTab('dashboard');
+    startPolling();
+  }
+
+  async function refreshAll(){
+  showLoaderDelayed('Sync…', 'Ambil data terbaru…');
+  try{
+    const res = await callServer('apiBootstrap', state.token, {
+      inflowLimit: 500,
+      outboundLimit: 500,
+      goalsLimit: 200
+    });
+    if (!res.ok) throw new Error(res.message || 'Gagal bootstrap');
+
+    state.syncVersion = res.data.version;
+    state.summary = res.data.summary;
+    state.inflow = res.data.inflow;
+    state.outbound = res.data.outbound;
+    state.goals = res.data.goals;
+
+    render();
+    toast('Data tersinkron ✅', 'good');
+  } catch(e){
+    toast(e.message || String(e), 'bad');
+  } finally {
+    hideLoaderSafe();
+  }
+}
+
+// =========================
+// Auto-sync (tanpa refresh manual)
+// =========================
+function startPolling(){
+  if (state.pollTimer) clearInterval(state.pollTimer);
+
+  state.pollTimer = setInterval(async ()=>{
+    if (!state.token) return;
+    if (document.hidden) return;
+
+    try{
+      const v = await callServer('apiGetSyncVersion', state.token);
+      if (v.ok && v.version > (state.syncVersion || 0)){
+        state.syncVersion = v.version;
+        await softSyncActive();
+        toast('Update masuk (auto-sync) ✨', 'good');
+      }
+    } catch(e){
+      // diamkan, biar tidak spam
+    }
+  }, 6000); // 6 detik
+}
+
+async function softSyncActive(){
+  // summary selalu
+  const sum = await callServer('apiGetSummary', state.token);
+  if (sum.ok) state.summary = sum.data;
+
+  if (state.activeTab === 'inflow'){
+    const a = await callServer('apiListTransactions', state.token, 'inflow', { limit: 500 });
+    if (a.ok) state.inflow = a.data;
+  } else if (state.activeTab === 'outbound'){
+    const b = await callServer('apiListTransactions', state.token, 'outbound', { limit: 500 });
+    if (b.ok) state.outbound = b.data;
+  } else if (state.activeTab === 'goals'){
+    const g = await callServer('apiListGoals', state.token);
+    if (g.ok) state.goals = g.data;
+  } else if (state.activeTab === 'charts'){
+    // redraw chart based on latest data
+    await loadAndDrawChart(true);
+  } else {
+    // dashboard
+    const a = await callServer('apiListTransactions', state.token, 'inflow', { limit: 6 });
+    const b = await callServer('apiListTransactions', state.token, 'outbound', { limit: 6 });
+    if (a.ok) state.inflow = a.data;
+    if (b.ok) state.outbound = b.data;
+  }
+
+  render();
+}
+
+  // =========================
+  // Tabs + Render
+  // =========================
+  function switchTab(tab){
+    state.activeTab = tab;
+    document.querySelectorAll('.tab').forEach(x=>{
+      x.classList.toggle('active', x.dataset.tab === tab);
+    });
+    render();
+  }
+
+  function render(){
+    const main = document.getElementById('mainCard');
+    if (state.activeTab === 'dashboard'){
+      main.innerHTML = renderDashboard();
+    } else if (state.activeTab === 'inflow'){
+      main.innerHTML = renderTxTable('inflow');
+    } else if (state.activeTab === 'outbound'){
+      main.innerHTML = renderTxTable('outbound');
+    } else if (state.activeTab === 'goals'){
+      main.innerHTML = renderGoals();
+    } else if (state.activeTab === 'charts'){
+      main.innerHTML = renderCharts();
+      // render chart setelah DOM ada
+      setTimeout(()=> loadAndDrawChart(false), 0);
+    }
+  }
+
+  function renderDashboard(){
+    const s = state.summary || {};
+    return `
+      <h2>Dashboard</h2>
+      <div class="muted">Ringkasan keuangan kamu, plus indikator forecasting sederhana berbasis rata-rata net bulanan.</div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="label">Total Inflow</div>
+          <div class="value">${money(s.totalIn)}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Total Outbound</div>
+          <div class="value">${money(s.totalOut)}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Balance Saat Ini</div>
+          <div class="value">${money(s.balance)}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center;">
+        <span class="tag purple">Avg Net/Bulan (≈${AVG_MONTHS_FOR_FORECAST_UI()} bulan)</span>
+        <span class="tag">${money(s.avgMonthlyNet)}</span>
+        <span class="muted">*dipakai untuk proyeksi goals</span>
+      </div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr; margin-top:14px;">
+        <div class="card" style="box-shadow:none;">
+          <h2>Transaksi Terbaru (Inflow)</h2>
+          ${renderMiniList(state.inflow.slice(0,6), 'inflow')}
+        </div>
+        <div class="card" style="box-shadow:none;">
+          <h2>Transaksi Terbaru (Outbound)</h2>
+          ${renderMiniList(state.outbound.slice(0,6), 'outbound')}
+        </div>
+      </div>
+    `;
+  }
+
+  function AVG_MONTHS_FOR_FORECAST_UI(){
+    return 3; // sinkron dengan server constant
+  }
+
+  function renderMiniList(list, type){
+    if (!list || list.length === 0) return `<div class="muted" style="margin-top:8px;">Belum ada data.</div>`;
+    return `
+      <table>
+        <thead><tr>
+          <th>Tanggal</th><th>Kategori</th><th>Amount</th>
+        </tr></thead>
+        <tbody>
+          ${list.map(x=>`
+            <tr>
+              <td>${esc(x.date)}</td>
+              <td>${esc(x.category || '-')}</td>
+              <td><b>${money(x.amount)}</b></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end;">
+        <button class="btn" onclick="switchTab('${type === 'inflow' ? 'inflow' : 'outbound'}')">Lihat semua</button>
+      </div>
+    `;
+  }
+
+  function renderTxTable(type){
+    const title = type === 'inflow' ? 'Cash Inflow' : 'Cash Outbound';
+    const list = type === 'inflow' ? state.inflow : state.outbound;
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin-bottom:6px;">${title}</h2>
+          <div class="muted">Tambah, edit, hapus transaksi tanpa perlu buka database manual.</div>
+        </div>
+        <button class="btn primary" onclick="openTxModal('${type}')">+ Tambah</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Kategori</th>
+              <th>Catatan</th>
+              <th>Amount</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(list && list.length ? list.map(tx => `
+              <tr>
+                <td>${esc(tx.date)}</td>
+                <td>${esc(tx.category || '-')}</td>
+                <td>${esc(tx.note || '-')}</td>
+                <td><b>${money(tx.amount)}</b></td>
+                <td>
+                  <div class="rowActions">
+                    <button class="btn" onclick="openTxModal('${type}', '${tx.id}')">Edit</button>
+                    <button class="btn danger" onclick="deleteTx('${type}','${tx.id}')">Hapus</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('') : `<tr><td colspan="5" class="muted">Belum ada data.</td></tr>`)}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderGoals(){
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin-bottom:6px;">Forecasting Goals</h2>
+          <div class="muted">
+            Input target tabungan (goalAmount + targetDate). Sistem menghitung:
+            required net/bulan & proyeksi berdasarkan rata-rata net bulanan.
+          </div>
+        </div>
+        <button class="btn primary" onclick="openGoalModal()">+ Tambah Goal</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Goal</th>
+              <th>Target</th>
+              <th>Required Net/Bulan</th>
+              <th>Proyeksi</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(state.goals && state.goals.length ? state.goals.map(g => `
+              <tr>
+                <td>
+                  <b>${esc(g.goalName)}</b><br/>
+                  <span class="muted">Target date: ${esc(g.targetDate)}</span>
+                </td>
+                <td><b>${money(g.goalAmount)}</b></td>
+                <td>${money(g.requiredMonthlyNet || 0)}</td>
+                <td>
+                  <span class="muted">Projected @ target:</span><br/>
+                  <b>${money(g.projectedBalanceAtTarget || 0)}</b>
+                </td>
+                <td>${esc(g.status || '-')}</td>
+                <td>
+                  <div class="rowActions">
+                    <button class="btn" onclick="recalcGoal('${g.id}')">Recalc</button>
+                    <button class="btn danger" onclick="deleteGoal('${g.id}')">Hapus</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('') : `<tr><td colspan="6" class="muted">Belum ada goals.</td></tr>`)}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+// =========================
+// Charts / Diagram
+// =========================
+function renderCharts(){
+  return `
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+      <div>
+        <h2 style="margin-bottom:6px;">Charts / Diagram</h2>
+        <div class="muted">Pilih jenis chart: batang (bulanan), “kripto” (candlestick net harian), atau pie kategori.</div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <select id="chartType" onchange="loadAndDrawChart(false)" style="min-width:220px;">
+          <option value="bar">Chart Batang (In/Out per bulan)</option>
+          <option value="candles">Chart “Kripto” (Candlestick Net Harian)</option>
+          <option value="pieOut">Pie Outbound (per kategori)</option>
+          <option value="pieIn">Pie Inflow (per kategori)</option>
+        </select>
+        <button class="btn" onclick="loadAndDrawChart(true)">Refresh Chart</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <div class="muted" id="chartHint" style="margin-bottom:10px;">—</div>
+      <div id="chartBox" style="width:100%; min-height: 420px; border:1px dashed rgba(109,40,217,.25); border-radius:14px; padding:10px;"></div>
+    </div>
+  `;
+}
+
+async function ensureCharts(){
+  if (state.chartsReady) return;
+  if (!window.google || !google.charts) throw new Error('Google Charts gagal dimuat.');
+  await new Promise((resolve)=>{
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(()=> resolve());
+  });
+  state.chartsReady = true;
+}
+
+async function loadAndDrawChart(isForce){
+  if (!state.token) return;
+  try{
+    await ensureCharts();
+    const type = document.getElementById('chartType')?.value || 'bar';
+
+    const hintEl = document.getElementById('chartHint');
+    if (type === 'bar') hintEl.textContent = 'Menampilkan inflow vs outbound per bulan (12 bulan terakhir).';
+    if (type === 'candles') hintEl.textContent = 'Candlestick net harian: open/close = saldo, high/low = rentang saldo hari itu.';
+    if (type === 'pieOut') hintEl.textContent = 'Pie outbound per kategori (top 12).';
+    if (type === 'pieIn') hintEl.textContent = 'Pie inflow per kategori (top 12).';
+
+    // ambil data dari server (sudah ada cache pendek)
+    const params = {
+      months: 12,
+      days: 60,
+      pieType: (type === 'pieIn') ? 'inflow' : 'outbound'
+    };
+    const res = await callServer('apiGetChartData', state.token, params);
+    if (!res.ok) throw new Error(res.message || 'Gagal ambil data chart');
+
+    drawChart(type, res.data);
+  } catch(e){
+    toast(e.message || String(e), 'bad');
+  }
+}
+
+function drawChart(type, data){
+  const box = document.getElementById('chartBox');
+  if (!box) return;
+
+  if (type === 'bar'){
+    const rows = [['Bulan','Inflow','Outbound']];
+    (data.monthly || []).forEach(m=>{
+      rows.push([m.month, Number(m.inflow||0), Number(m.outbound||0)]);
+    });
+    const dt = google.visualization.arrayToDataTable(rows);
+    const chart = new google.visualization.ColumnChart(box);
+    chart.draw(dt, {
+      height: 420,
+      legend: { position: 'top' },
+      chartArea: { left: 60, right: 20, top: 40, bottom: 60 },
+      vAxis: { format: 'short' }
+    });
+    return;
+  }
+
+  if (type === 'candles'){
+    // CandlestickChart expects: [x, low, open, close, high]
+    const rows = [['Tanggal','Low','Open','Close','High']];
+    (data.candles || []).forEach(c=>{
+      rows.push([c.date, Number(c.low||0), Number(c.open||0), Number(c.close||0), Number(c.high||0)]);
+    });
+    const dt = google.visualization.arrayToDataTable(rows, true);
+    const chart = new google.visualization.CandlestickChart(box);
+    chart.draw(dt, {
+      height: 420,
+      legend: 'none',
+      chartArea: { left: 60, right: 20, top: 30, bottom: 70 },
+      vAxis: { format: 'short' }
+    });
+    return;
+  }
+
+  if (type === 'pieOut' || type === 'pieIn'){
+    const rows = [['Kategori','Amount']];
+    (data.pie || []).forEach(p=>{
+      rows.push([p.category, Number(p.amount||0)]);
+    });
+    const dt = google.visualization.arrayToDataTable(rows);
+    const chart = new google.visualization.PieChart(box);
+    chart.draw(dt, {
+      height: 420,
+      pieHole: 0.35,
+      legend: { position: 'right' },
+      chartArea: { left: 10, right: 10, top: 20, bottom: 20 }
+    });
+    return;
+  }
+}
+
+  function esc(s){
+    s = String(s ?? '');
+    return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // =========================
+  // Quick Add
+  // =========================
+  async function quickAdd(){
+    const date = document.getElementById('qaDate').value || todayISO();
+    const amount = Number(document.getElementById('qaAmount').value);
+    const category = document.getElementById('qaCategory').value.trim();
+    const note = document.getElementById('qaNote').value.trim();
+
+    const type = (state.activeTab === 'outbound') ? 'outbound' : 'inflow';
+    if (!amount || amount <= 0) return toast('Amount harus > 0', 'bad');
+
+    showLoader('Menyimpan…', 'Menulis transaksi ke database…');
+    try{
+      const res = await callServer('apiAddTransaction', state.token, type, { date, amount, category, note });
+      if (!res.ok) throw new Error(res.message || 'Gagal simpan');
+
+      // update local cache biar tidak “bolak balik” load besar
+      if (type === 'inflow') state.inflow.unshift(res.data);
+      else state.outbound.unshift(res.data);
+
+      // refresh summary saja agar cepat
+      const sum = await callServer('apiGetSummary', state.token);
+      if (sum.ok) state.summary = sum.data;
+
+      render();
+      toast('Transaksi ditambahkan ✅', 'good');
+      document.getElementById('qaAmount').value = '';
+      document.getElementById('qaCategory').value = '';
+      document.getElementById('qaNote').value = '';
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  // =========================
+  // Transaction modal (Add/Edit)
+  // =========================
+  function openTxModal(type, txId=null){
+    const isEdit = Boolean(txId);
+    const list = type === 'inflow' ? state.inflow : state.outbound;
+    const tx = isEdit ? list.find(x => x.id === txId) : { date: todayISO(), amount:'', category:'', note:'' };
+
+    openModal(
+      (isEdit ? 'Edit' : 'Tambah') + (type === 'inflow' ? ' Inflow' : ' Outbound'),
+      `
+        <div class="formGrid">
+          <div>
+            <label>Tanggal</label>
+            <input id="mDate" type="date" value="${esc(tx.date || todayISO())}" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="mAmount" type="number" min="0" step="1" value="${esc(tx.amount || '')}" placeholder="contoh: 50000" />
+          </div>
+          <div>
+            <label>Kategori</label>
+            <input id="mCategory" value="${esc(tx.category || '')}" placeholder="contoh: Gaji / Makan" />
+          </div>
+          <div>
+            <label>Catatan</label>
+            <input id="mNote" value="${esc(tx.note || '')}" placeholder="opsional" />
+          </div>
+        </div>
+        <div class="footerActions">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn primary" onclick="${isEdit ? `saveTxEdit('${type}','${txId}')` : `saveTxAdd('${type}')`}">
+            Simpan
+          </button>
+        </div>
+      `
+    );
+  }
+
+  async function saveTxAdd(type){
+    const payload = {
+      date: document.getElementById('mDate').value,
+      amount: Number(document.getElementById('mAmount').value),
+      category: document.getElementById('mCategory').value.trim(),
+      note: document.getElementById('mNote').value.trim()
+    };
+    showLoader('Menyimpan…','Tambah transaksi…');
+    try{
+      const res = await callServer('apiAddTransaction', state.token, type, payload);
+      if (!res.ok) throw new Error(res.message || 'Gagal');
+
+      if (type === 'inflow') state.inflow.unshift(res.data);
+      else state.outbound.unshift(res.data);
+
+      const sum = await callServer('apiGetSummary', state.token);
+      if (sum.ok) state.summary = sum.data;
+
+      closeModal();
+      render();
+      toast('Tersimpan ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  async function saveTxEdit(type, txId){
+    const payload = {
+      date: document.getElementById('mDate').value,
+      amount: Number(document.getElementById('mAmount').value),
+      category: document.getElementById('mCategory').value.trim(),
+      note: document.getElementById('mNote').value.trim()
+    };
+    showLoader('Menyimpan…','Update transaksi…');
+    try{
+      const res = await callServer('apiUpdateTransaction', state.token, type, txId, payload);
+      if (!res.ok) throw new Error(res.message || 'Gagal');
+
+      const list = type === 'inflow' ? state.inflow : state.outbound;
+      const idx = list.findIndex(x => x.id === txId);
+      if (idx >= 0) list[idx] = { ...list[idx], ...payload };
+
+      const sum = await callServer('apiGetSummary', state.token);
+      if (sum.ok) state.summary = sum.data;
+
+      closeModal();
+      render();
+      toast('Diupdate ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  async function deleteTx(type, txId){
+    if (!confirm('Yakin hapus transaksi ini?')) return;
+    showLoader('Menghapus…','Buang transaksi…');
+    try{
+      const res = await callServer('apiDeleteTransaction', state.token, type, txId);
+      if (!res.ok) throw new Error(res.message || 'Gagal hapus');
+
+      if (type === 'inflow') state.inflow = state.inflow.filter(x => x.id !== txId);
+      else state.outbound = state.outbound.filter(x => x.id !== txId);
+
+      const sum = await callServer('apiGetSummary', state.token);
+      if (sum.ok) state.summary = sum.data;
+
+      render();
+      toast('Dihapus ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  // =========================
+  // Goals modal (Add)
+  // =========================
+  function openGoalModal(){
+    openModal('Tambah Goal', `
+      <div class="formGrid">
+        <div>
+          <label>Nama Goal</label>
+          <input id="gName" placeholder="contoh: Dana Darurat" />
+        </div>
+        <div>
+          <label>Target Amount</label>
+          <input id="gAmount" type="number" min="0" step="1" placeholder="contoh: 10000000" />
+        </div>
+        <div>
+          <label>Target Date</label>
+          <input id="gDate" type="date" value="${todayISO()}" />
+        </div>
+        <div>
+          <label>Catatan</label>
+          <input id="gNote" placeholder="opsional (tidak disimpan, sekadar pengingat UI)" />
+        </div>
+      </div>
+      <div class="footerActions">
+        <button class="btn" onclick="closeModal()">Batal</button>
+        <button class="btn primary" onclick="saveGoal()">Simpan</button>
+      </div>
+    `);
+  }
+
+  async function saveGoal(){
+    const payload = {
+      goalName: document.getElementById('gName').value.trim(),
+      goalAmount: Number(document.getElementById('gAmount').value),
+      targetDate: document.getElementById('gDate').value
+    };
+    showLoader('Menyimpan Goal…','Hitung proyeksi…');
+    try{
+      const res = await callServer('apiAddGoal', state.token, payload);
+      if (!res.ok) throw new Error(res.message || 'Gagal');
+
+      // update local
+      state.goals.unshift({
+        id: res.data.id,
+        goalName: payload.goalName,
+        goalAmount: payload.goalAmount,
+        targetDate: payload.targetDate,
+        requiredMonthlyNet: res.data.requiredMonthlyNet,
+        projectedBalanceAtTarget: res.data.projectedBalanceAtTarget,
+        status: res.data.status
+      });
+      closeModal();
+      render();
+      toast('Goal ditambahkan ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  async function recalcGoal(goalId){
+    showLoader('Recalc…','Menghitung ulang proyeksi…');
+    try{
+      const res = await callServer('apiRecalcGoal', state.token, goalId);
+      if (!res.ok) throw new Error(res.message || 'Gagal recalc');
+
+      // reload goals ringan
+      const goals = await callServer('apiListGoals', state.token);
+      if (goals.ok) state.goals = goals.data;
+
+      render();
+      toast('Proyeksi diperbarui ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  async function deleteGoal(goalId){
+    if (!confirm('Yakin hapus goal ini?')) return;
+    showLoader('Menghapus…','Buang goal…');
+    try{
+      const res = await callServer('apiDeleteGoal', state.token, goalId);
+      if (!res.ok) throw new Error(res.message || 'Gagal hapus');
+
+      state.goals = state.goals.filter(x => x.id !== goalId);
+      render();
+      toast('Goal dihapus ✅', 'good');
+    } catch(e){
+      toast(e.message || String(e), 'bad');
+    } finally {
+      hideLoaderSafe();
+    }
+  }
+
+  // =========================
+  // Boot
+  // =========================
+  (function init(){
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('appView').style.display = 'none';
+    autoLogin();
+  })();
+
+</script>
+</body>
+</html>
