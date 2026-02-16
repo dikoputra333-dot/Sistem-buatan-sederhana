@@ -1011,6 +1011,124 @@
           return { ok:true };
         }
 
+
+        case 'apiGetChartData': {
+          const params = (args[1] || {});
+          const months = Math.max(1, Math.min(36, Number(params.months || 12)));
+          const days = Math.max(7, Math.min(365, Number(params.days || 60)));
+          const pieType = String(params.pieType || 'outbound');
+
+          const session = await requireSession_();
+          const userId = session.user.id;
+
+          // ---- helpers
+          const pad2 = (x)=> String(x).padStart(2,'0');
+          const toISODate = (d)=> `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+          const startOfMonth = (d)=> new Date(d.getFullYear(), d.getMonth(), 1);
+          const addMonths = (d, n)=> new Date(d.getFullYear(), d.getMonth()+n, 1);
+
+          // ---- monthly range (months terakhir)
+          const now = new Date();
+          const startMonth = addMonths(startOfMonth(now), -(months-1));
+          const monthStartISO = toISODate(startMonth);
+
+          const { data: monthlyTx, error: mErr } = await supa
+            .from('transactions')
+            .select('type,date,amount')
+            .eq('user_id', userId)
+            .gte('date', monthStartISO)
+            .order('date', { ascending: true });
+
+          if (mErr) throw mErr;
+
+          // siapkan bucket 0 untuk semua bulan dalam rentang
+          const monthBuckets = new Map();
+          for (let i=0; i<months; i++){
+            const d = addMonths(startMonth, i);
+            const key = `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+            monthBuckets.set(key, { month: key, inflow: 0, outbound: 0 });
+          }
+          (monthlyTx || []).forEach(tx=>{
+            const dt = String(tx.date || '');
+            const key = dt.slice(0,7); // YYYY-MM
+            if (!monthBuckets.has(key)) return;
+            const b = monthBuckets.get(key);
+            const amt = Number(tx.amount || 0);
+            if (tx.type === 'inflow') b.inflow += amt;
+            else b.outbound += amt;
+          });
+
+          const monthly = Array.from(monthBuckets.values());
+
+          // ---- recent range (days terakhir) untuk candles + pie
+          const startDay = new Date();
+          startDay.setDate(startDay.getDate() - (days-1));
+          const dayStartISO = toISODate(startDay);
+
+          const { data: recentTx, error: rErr } = await supa
+            .from('transactions')
+            .select('type,date,amount,category')
+            .eq('user_id', userId)
+            .gte('date', dayStartISO)
+            .order('date', { ascending: true });
+
+          if (rErr) throw rErr;
+
+          // hitung total balance all time (biar candles punya starting balance)
+          const sum = await callServer('apiGetSummary', null);
+          const totalBalance = (sum && sum.ok) ? Number(sum.data.balance || 0) : 0;
+
+          let netRange = 0;
+          const dayNet = new Map();  // YYYY-MM-DD -> net
+          const pieAgg = new Map();  // category -> amount
+          (recentTx || []).forEach(tx=>{
+            const amt = Number(tx.amount || 0);
+            const signed = (tx.type === 'inflow') ? amt : -amt;
+            netRange += signed;
+
+            const d = String(tx.date || '');
+            dayNet.set(d, (dayNet.get(d) || 0) + signed);
+
+            if (tx.type === pieType){
+              const catRaw = String(tx.category || '').trim();
+              const cat = catRaw ? catRaw : '(Tanpa kategori)';
+              pieAgg.set(cat, (pieAgg.get(cat) || 0) + amt);
+            }
+          });
+
+          const balanceBeforeStart = totalBalance - netRange;
+
+          // build candles for each day (continuous)
+          const candles = [];
+          let running = balanceBeforeStart;
+          for (let i=0; i<days; i++){
+            const d = new Date(startDay.getFullYear(), startDay.getMonth(), startDay.getDate() + i);
+            const iso = toISODate(d);
+            const net = Number(dayNet.get(iso) || 0);
+            const open = running;
+            const close = running + net;
+            const high = Math.max(open, close);
+            const low  = Math.min(open, close);
+            candles.push({ date: iso, low, open, close, high });
+            running = close;
+          }
+
+          // pie top 12
+          const pieSorted = Array.from(pieAgg.entries())
+            .map(([category, amount])=>({ category, amount }))
+            .sort((a,b)=> b.amount - a.amount);
+
+          const pie = [];
+          let others = 0;
+          pieSorted.forEach((p, idx)=>{
+            if (idx < 12) pie.push(p);
+            else others += p.amount;
+          });
+          if (others > 0) pie.push({ category: 'Lainnya', amount: others });
+
+          return { ok:true, data: { monthly, candles, pie } };
+        }
+
         default:
           throw new Error('Unknown fn: ' + fn);
       }
