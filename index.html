@@ -1586,17 +1586,29 @@ function drawChart(type, data){
 
   if (type === 'candles'){
     // CandlestickChart expects: [x, low, open, close, high]
+    // Pakai tipe DATE untuk sumbu-X (menghindari error axis #0 string)
+    const parseISO = (iso)=>{
+      const parts = String(iso||'').split('-').map(Number);
+      if (parts.length === 3 && parts.every(n=>Number.isFinite(n))) return new Date(parts[0], parts[1]-1, parts[2]);
+      // fallback (jika format tidak standar)
+      const d = new Date(iso);
+      return isNaN(d.getTime()) ? new Date() : d;
+    };
+
     const rows = [['Tanggal','Low','Open','Close','High']];
     (data.candles || []).forEach(c=>{
-      rows.push([c.date, Number(c.low||0), Number(c.open||0), Number(c.close||0), Number(c.high||0)]);
+      rows.push([parseISO(c.date), Number(c.low||0), Number(c.open||0), Number(c.close||0), Number(c.high||0)]);
     });
-    const dt = google.visualization.arrayToDataTable(rows, true);
+
+    // JANGAN pakai opt_firstRowIsData=true karena baris pertama adalah header
+    const dt = google.visualization.arrayToDataTable(rows);
     const chart = new google.visualization.CandlestickChart(box);
     chart.draw(dt, {
       height: 420,
       legend: 'none',
       chartArea: { left: 60, right: 20, top: 30, bottom: 70 },
-      vAxis: { format: 'short' }
+      vAxis: { format: 'short' },
+      hAxis: { format: 'dd/MM' }
     });
     return;
   }
